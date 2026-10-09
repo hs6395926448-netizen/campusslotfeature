@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block title %}Calendar — CampusSlot{% endblock %}
+{% block content %}
+<div class="container py-4"><div class="d-flex justify-content-between align-items-center mb-4"><div><h2 class="fw-bold mb-1">Appointment Calendar</h2><p class="text-muted mb-0">Your scheduled CampusSlot appointments.</p></div><a href="{{ url_for('student.dashboard') if current_user.get_id().startswith('student:') else url_for('dashboard.dashboard') }}" class="btn btn-outline-primary">Back to Dashboard</a></div>
+<div class="card border-0 shadow-sm"><div class="card-body p-0"><div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Date</th><th>Time</th><th>Faculty</th><th>Student</th><th>Purpose</th><th>Status</th></tr></thead><tbody>{% for a in appointments %}<tr><td>{{ a.slot.date.strftime('%d %b %Y') }}</td><td>{{ a.slot.start_time }}–{{ a.slot.end_time }}</td><td>{{ a.slot.service.business.name }}</td><td>{{ a.customer_name }}</td><td>{{ a.slot.service.name }}</td><td><span class="badge status-badge {{ a.status }}">{{ a.status|capitalize }}</span></td></tr>{% else %}<tr><td colspan="6" class="text-center text-muted py-5">No appointments scheduled.</td></tr>{% endfor %}</tbody></table></div></div></div></div>
+{% endblock %}

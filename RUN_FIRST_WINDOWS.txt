@@ -1,0 +1,34 @@
+CAMPUSSLOT — EASY WINDOWS RUN GUIDE
+===================================
+
+IMPORTANT: This package uses SQLite by default. You do NOT need PostgreSQL or Docker to start the app.
+It also does NOT install psycopg2 during the default setup, avoiding the wheel/C++ error you hit.
+Python 3.12 or 3.13 is supported for the default local run.
+
+1) Extract this ZIP to a normal folder, e.g. C:\Users\ASUS\Downloads\CampusSlot-Easy-Run-Windows
+2) Open that extracted folder in VS Code (File > Open Folder).
+3) Close any old CampusSlot terminals. You do not need to delete the old venv manually.
+4) In VS Code Explorer, find setup.bat. Right-click > Reveal in File Explorer, then double-click setup.bat.
+   OR run this in PowerShell from this folder: .\setup.bat
+5) Wait until it says Setup complete. It creates a fresh .venv, installs dependencies, and creates demo data.
+6) Double-click start.bat (or run .\start.bat in PowerShell).
+7) Open http://127.0.0.1:5000 in your browser. Keep the terminal open while using the site.
+
+DEMO ACCOUNTS
+Teacher: teacher@campusslot.com / password123
+Student: student@campusslot.com / password123
+Admin:   admin@campusslot.com / admin123
+
+EMAIL NOTIFICATIONS (EMAIL ONLY)
+After the app starts, copy .env.example to .env and enter SMTP_HOST, SMTP_USERNAME, SMTP_PASSWORD (Gmail App Password), MAIL_FROM, and BASE_URL. Restart the app. Email buttons let teachers confirm, reject, cancel, or complete a meeting after reviewing the action page; the teacher dashboard link supports signed-in meeting management. Student and teacher login links are included in appointment emails.
+
+
+POSTGRESQL (OPTIONAL, NOT NEEDED FOR FIRST RUN)
+Default database is SQLite. To switch to PostgreSQL later, install PostgreSQL, set DATABASE_URL in .env, then install the optional driver:
+  .venv\Scripts\python -m pip install -r requirements-postgres.txt
+Advanced PostgreSQL SQL examples are in postgresql_hardening.sql.
+
+TROUBLESHOOTING
+- If .venv is already present but broken, close all Python/Flask terminals, delete the .venv folder in File Explorer, then run setup.bat again.
+- Do not run setup.bat and start.bat from a different/old CampusSlot folder.
+- If setup fails, copy the last 15 lines of the setup window.

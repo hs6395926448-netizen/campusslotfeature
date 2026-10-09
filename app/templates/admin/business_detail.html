@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}{{ business.name }} — Admin View{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+
+    <!-- Back + Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <a href="/admin/{{ secret }}" class="btn btn-sm btn-outline-secondary mb-2">
+                <i class="bi bi-arrow-left me-1"></i>Back to Admin
+            </a>
+            <h3 class="fw-bold mb-0">{{ business.name }}</h3>
+            <small class="text-muted">
+                {{ business.email }} &middot; {{ business.phone }}
+                {% if teacher.address %}&middot; {{ business.address }}{% endif %}
+            </small>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/book/{{ business.slug }}" target="_blank" class="btn btn-success btn-sm">
+                <i class="bi bi-box-arrow-up-right me-1"></i>View Booking Page
+            </a>
+            <form method="POST" action="/admin/{{ secret }}/toggle/{{ business.id }}"
+                  onsubmit="return confirm('Toggle this teacher?')">
+                <button type="submit"
+                        class="btn btn-sm {{ 'btn-outline-danger' if teacher.is_active else 'btn-outline-success' }}">
+                    {{ 'Deactivate' if teacher.is_active else 'Activate' }}
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card border-0 bg-primary bg-opacity-10 text-center py-3">
+                <div class="fs-2 fw-bold text-primary">{{ purposes|length }}</div>
+                <div class="small text-muted">Appointment Purposes</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 bg-info bg-opacity-10 text-center py-3">
+                <div class="fs-2 fw-bold text-info">{{ appointments|length }}</div>
+                <div class="small text-muted">Total Bookings</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 bg-warning bg-opacity-10 text-center py-3">
+                <div class="fs-2 fw-bold text-warning">
+                    {{ appointments|selectattr('status','equalto','pending')|list|length }}
+                </div>
+                <div class="small text-muted">Pending</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 bg-success bg-opacity-10 text-center py-3">
+                <div class="fs-2 fw-bold text-success">
+                    {{ appointments|selectattr('status','equalto','completed')|list|length }}
+                </div>
+                <div class="small text-muted">Completed</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Appointments -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="bi bi-calendar-week text-primary me-2"></i>
+                        All Appointments ({{ appointments|length }})
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    {% if appointments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 small">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-3">Student</th>
+                                    <th>Appointment Purpose</th>
+                                    <th>Date & Time</th>
+                                    <th>Tracking ID</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appt in appointments %}
+                                <tr>
+                                    <td class="ps-3">
+                                        <div class="fw-semibold">{{ appt.customer_name }}</div>
+                                        <div class="text-muted">{{ appt.customer_phone }}</div>
+                                    </td>
+                                    <td>{{ appt.slot.service.name }}</td>
+                                    <td>
+                                        {{ appt.slot.date.strftime('%d %b') }}
+                                        <span class="text-muted">{{ appt.slot.start_time }}</span>
+                                    </td>
+                                    <td><code class="text-primary">{{ appt.tracking_id }}</code></td>
+                                    <td>
+                                        {% if appt.status == 'pending' %}
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        {% elif appt.status == 'confirmed' %}
+                                            <span class="badge bg-primary">Confirmed</span>
+                                        {% elif appt.status == 'completed' %}
+                                            <span class="badge bg-success">Completed</span>
+                                        {% elif appt.status == 'cancelled' %}
+                                            <span class="badge bg-danger">Cancelled</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4 text-muted small">No appointments yet.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Appointment Purposes -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="bi bi-list-ul text-secondary me-2"></i>Appointment Purposes
+                    </h6>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for svc in purposes %}
+                    <li class="list-group-item py-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-semibold small">{{ svc.name }}</div>
+                                <div class="text-muted" style="font-size:11px">
+                                    {{ svc.duration_minutes }} min &middot; ₹{{ svc.price|int }}
+                                </div>
+                            </div>
+                            {% if svc.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Off</span>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% else %}
+                    <li class="list-group-item text-muted small text-center py-3">
+                        No purposes added yet.
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

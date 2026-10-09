@@ -1,0 +1,24 @@
+CampusSlot — Windows Quick Start
+
+1) Extract this ZIP into a NEW folder.
+2) Open that folder in VS Code.
+3) Open PowerShell terminal.
+4) Run exactly:
+   .\setup.bat
+5) Wait until you see:
+   Setup complete! Run start.bat to start CampusSlot.
+6) Then run:
+   .\start.bat
+7) Open:
+   http://127.0.0.1:5000
+
+Demo accounts:
+Student: student@campusslot.com / password123
+Teacher: teacher@campusslot.com / password123
+Admin:   admin@campusslot.com / admin123
+
+This Windows bundle uses SQLite by default so PostgreSQL/Docker is NOT
+required for the first run. Email provider credentials are optional
+until you configure real notifications.
+
+If setup fails, do not delete anything. Copy the last 15 terminal lines.

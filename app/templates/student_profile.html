@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}{{ student.name }} — Student Profile{% endblock %}
+{% block content %}
+<div class="container py-3">
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body p-4 p-md-5 text-center">
+          <div class="student-profile-avatar mx-auto mb-3">{{ student.name[:1]|upper }}</div>
+          <h2 class="fw-bold mb-1">{{ student.name }}</h2>
+          <p class="text-muted mb-3">{{ student.roll_number }}</p>
+          <span class="badge text-bg-primary mb-4">{{ student.department }}</span>
+          <div class="text-start profile-info-list">
+            <div><i class="bi bi-mortarboard"></i><span><strong>Course</strong><br>{{ student.course or '—' }}</span></div>
+            <div><i class="bi bi-calendar3"></i><span><strong>Semester</strong><br>{{ student.semester or '—' }}</span></div>
+            <div><i class="bi bi-building"></i><span><strong>Department</strong><br>{{ student.department }}</span></div>
+            <div><i class="bi bi-envelope"></i><span><strong>Email</strong><br>{{ student.email }}</span></div>
+            <div><i class="bi bi-telephone"></i><span><strong>Phone</strong><br>{{ student.phone }}</span></div>
+          </div>
+          <div class="d-grid gap-2 mt-4">
+            <a href="/" class="btn btn-primary">Find a Teacher</a>
+            <a href="/student/dashboard" class="btn btn-outline-primary">My Appointments</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-7">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3"><strong>Appointment History</strong></div>
+        <div class="card-body p-0">
+          {% if appointments %}
+          <div class="table-responsive"><table class="table align-middle mb-0">
+            <thead><tr><th>Teacher</th><th>Purpose</th><th>Date</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for a in appointments %}
+            <tr>
+              <td><strong>{{ a.slot.service.business.name }}</strong><div class="small text-muted">{{ a.slot.service.business.department }}</div></td>
+              <td>{{ a.slot.service.name }}</td>
+              <td>{{ a.slot.date.strftime('%d %b %Y') }}<div class="small text-muted">{{ a.slot.start_time }}–{{ a.slot.end_time }}</div></td>
+              <td><span class="badge status-badge {{ a.status }}">{{ a.status|capitalize }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+          </table></div>
+          {% else %}
+          <div class="text-center text-muted py-5"><i class="bi bi-calendar-x fs-1"></i><p class="mt-2 mb-0">No appointments yet.</p></div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

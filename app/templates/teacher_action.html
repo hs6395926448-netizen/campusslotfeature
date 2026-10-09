@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Teacher Meeting Action — CampusSlot{% endblock %}
+{% block content %}
+<div class="container py-4 py-md-5" style="max-width:720px">
+  <div class="text-center mb-4">
+    <div class="display-6 fw-bold text-primary">CampusSlot</div>
+    <div class="text-muted">Teacher mobile meeting action</div>
+  </div>
+
+  {% if error %}
+    <div class="alert alert-danger shadow-sm">
+      <strong>Action not completed.</strong>
+      <div class="mt-1">{{ error }}</div>
+    </div>
+  {% elif success %}
+    <div class="alert alert-success shadow-sm">
+      <strong>{{ action_label }} — done.</strong>
+      <div class="mt-1">The appointment status is now <strong>{{ result.status|capitalize }}</strong>.</div>
+      <div class="small mt-2">The student and teacher notification channels have been triggered.</div>
+    </div>
+  {% elif appointment %}
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <span class="badge text-bg-primary mb-3">Teacher action</span>
+        <h3 class="fw-bold">{{ action_label }}</h3>
+        <p class="text-muted">Review the meeting below and confirm the action.</p>
+
+        <div class="bg-light rounded-3 p-3 mb-4">
+          <div><strong>Student:</strong> {{ appointment.customer_name }}</div>
+          <div><strong>Purpose:</strong> {{ appointment.slot.service.name }}</div>
+          <div><strong>Date:</strong> {{ appointment.slot.date.strftime('%d %b %Y') }}</div>
+          <div><strong>Time:</strong> {{ appointment.slot.start_time }} – {{ appointment.slot.end_time }}</div>
+          <div><strong>Tracking ID:</strong> {{ appointment.tracking_id }}</div>
+          <div><strong>Current status:</strong> {{ appointment.status|capitalize }}</div>
+        </div>
+
+        {% if reschedule %}
+          <form method="POST" class="mt-3">
+            <div class="mb-3">
+              <label for="meeting_date" class="form-label fw-semibold">New meeting date</label>
+              <input id="meeting_date" name="meeting_date" type="date" class="form-control form-control-lg"
+                     min="{{ today or appointment.slot.date.isoformat() }}" value="{{ appointment.slot.date.isoformat() }}" required>
+            </div>
+            <div class="mb-3">
+              <label for="start_time" class="form-label fw-semibold">New start time</label>
+              <input id="start_time" name="start_time" type="time" class="form-control form-control-lg"
+                     value="{{ appointment.slot.start_time }}" required>
+              <div class="form-text">Meeting duration is fixed at {{ appointment.slot.service.duration_minutes }} minutes. The end time is calculated automatically.</div>
+            </div>
+            <button class="btn btn-primary btn-lg w-100" type="submit">Save new date and time</button>
+          </form>
+        {% else %}
+          <form method="POST">
+            <button class="btn btn-primary btn-lg w-100" type="submit">
+              {{ action_label }}
+            </button>
+          </form>
+        {% endif %}
+        <p class="small text-muted text-center mt-3 mb-0">
+          This secure link is short-lived and tied to this exact appointment version.
+        </p>
+      </div>
+    </div>
+  {% else %}
+    <div class="alert alert-warning">No appointment action is available.</div>
+  {% endif %}
+</div>
+{% endblock %}

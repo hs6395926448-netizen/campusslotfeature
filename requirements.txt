@@ -1,0 +1,24 @@
+# Core Framework
+Flask==3.0.3
+Flask-SQLAlchemy==3.1.1
+
+# Database
+# Local development uses SQLite (built into Python).
+# PostgreSQL driver is optional; see requirements-postgres.txt.
+
+# Environment variable management
+python-dotenv==1.0.1
+
+# Production WSGI server (used on Render/Railway instead of Flask dev server)
+gunicorn==22.0.0
+
+# Optional but recommended for production:
+# Werkzeug is included with Flask — used for password hashing
+Flask-Login==0.6.3
+tzdata==2025.2
+
+# HTTPS email API (works on Render Free where outbound SMTP is blocked)
+resend>=2.0.0,<3.0.0
+
+# Optional durable background notification queue (configure CELERY_BROKER_URL)
+celery[redis]>=5.4,<6.0

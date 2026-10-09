@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+{% block title %}Track Your Appointment — CampusSlot{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                     style="width:64px;height:64px;font-size:28px;">
+                    <i class="bi bi-search"></i>
+                </div>
+                <h2 class="fw-bold">Track Your Appointment</h2>
+                <p class="text-muted">Enter the tracking ID from your email confirmation</p>
+            </div>
+
+            <!-- Lookup Form -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-ticket-perforated text-primary"></i>
+                        </span>
+                        <input type="text" class="form-control form-control-lg"
+                               id="tracking-input"
+                               placeholder="e.g. SL-A3F7C2"
+                               value="{{ tracking_id or '' }}"
+                               style="text-transform:uppercase; letter-spacing:0.05em;">
+                        <button class="btn btn-primary px-4" onclick="trackAppointment()">
+                            <i class="bi bi-search me-1"></i>Track
+                        </button>
+                    </div>
+                    <div id="track-alert" class="mt-3 d-none"></div>
+                </div>
+            </div>
+
+            <!-- Result Card (hidden until API responds) -->
+            <div id="result-card" class="d-none">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 fw-bold">
+                                <i class="bi bi-calendar2-check text-primary me-2"></i>
+                                Appointment Details
+                            </h6>
+                            <span class="badge" id="status-badge">—</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+
+                        <!-- Tracking ID -->
+                        <div class="d-flex justify-content-between align-items-center bg-light rounded p-3 mb-4">
+                            <span class="text-muted small">Tracking ID</span>
+                            <span class="fw-bold font-monospace text-primary" id="res-tracking-id">—</span>
+                        </div>
+
+                        <!-- Detail rows -->
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="detail-block">
+                                    <div class="text-muted small mb-1">
+                                        <i class="bi bi-person me-1"></i>Student
+                                    </div>
+                                    <div class="fw-semibold" id="res-name">—</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="detail-block">
+                                    <div class="text-muted small mb-1">
+                                        <i class="bi bi-shop me-1"></i>Teacher
+                                    </div>
+                                    <div class="fw-semibold" id="res-teacher">—</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="detail-block">
+                                    <div class="text-muted small mb-1">
+                                        <i class="bi bi-briefcase me-1"></i>Appointment Purpose
+                                    </div>
+                                    <div class="fw-semibold" id="res-purpose">—</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="detail-block">
+                                    <div class="text-muted small mb-1">
+                                        <i class="bi bi-clock me-1"></i>Duration
+                                    </div>
+                                    <div class="fw-semibold" id="res-duration">—</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="detail-block">
+                                    <div class="text-muted small mb-1">
+                                        <i class="bi bi-calendar3 me-1"></i>Date
+                                    </div>
+                                    <div class="fw-semibold" id="res-date">—</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="detail-block">
+                                    <div class="text-muted small mb-1">
+                                        <i class="bi bi-alarm me-1"></i>Time
+                                    </div>
+                                    <div class="fw-semibold" id="res-time">—</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Student notes (shown only if present) -->
+                        <div id="notes-row" class="mt-3 d-none">
+                            <div class="text-muted small mb-1">
+                                <i class="bi bi-chat-text me-1"></i>Your Notes
+                            </div>
+                            <div class="bg-light rounded p-2 small" id="res-notes">—</div>
+                        </div>
+
+                        <!-- Status Timeline -->
+                        <div class="mt-4">
+                            <div class="text-muted small mb-2 fw-semibold">STATUS TIMELINE</div>
+                            <div class="d-flex align-items-center gap-2" id="status-timeline">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="card-footer bg-white border-top small text-muted py-3">
+                        <i class="bi bi-clock-history me-1"></i>
+                        Booked on: <span id="res-booked-at">—</span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex gap-2 mt-3">
+                    <a id="book-another-link" href="#" class="btn btn-outline-primary flex-fill">
+                        <i class="bi bi-plus-circle me-1"></i>Book Another
+                    </a>
+                    <button class="btn btn-outline-secondary flex-fill" onclick="clearResult()">
+                        <i class="bi bi-arrow-left me-1"></i>Search Again
+                    </button>
+                </div>
+            </div>
+
+            <!-- Help Text -->
+            <div class="text-center mt-4 text-muted small">
+                Can't find your booking? Check the confirmation email sent after booking.
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Status config: label, badge color class, and timeline step position
+    const STATUS_CONFIG = {
+        pending:   { label: "Pending",   badge: "bg-warning text-dark", step: 0 },
+        confirmed: { label: "Confirmed", badge: "bg-primary",           step: 1 },
+        completed: { label: "Completed", badge: "bg-success",           step: 2 },
+        cancelled: { label: "Cancelled", badge: "bg-danger",            step: 2 },
+    };
+
+    const TIMELINE_STEPS = ["Pending", "Confirmed", "Completed"];
+
+    // Auto-track if tracking ID is pre-filled (from URL route)
+    window.addEventListener("DOMContentLoaded", () => {
+        const input = document.getElementById("tracking-input");
+        if (input.value.trim().length > 3) {
+            trackAppointment();
+        }
+    });
+
+    // Allow pressing Enter in the input field
+    document.getElementById("tracking-input").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") trackAppointment();
+    });
+
+    async function trackAppointment() {
+        const trackingId = document.getElementById("tracking-input").value.trim().toUpperCase();
+        if (!trackingId) {
+            showAlert("Please enter your tracking ID.", "warning");
+            return;
+        }
+
+        showAlert('<span class="spinner-border spinner-border-sm me-2"></span>Looking up your appointment...', "info");
+
+        try {
+            const res = await fetch(`/api/track/${trackingId}`);
+            const data = await res.json();
+
+            if (data.success) {
+                hideAlert();
+                populateResult(data.appointment);
+            } else {
+                showAlert(
+                    `<i class="bi bi-exclamation-circle me-1"></i>${data.error || "Appointment not found."}`,
+                    "danger"
+                );
+                document.getElementById("result-card").classList.add("d-none");
+            }
+        } catch (err) {
+            showAlert("Network error. Please try again.", "danger");
+        }
+    }
+
+    function populateResult(appt) {
+        // Tracking ID
+        document.getElementById("res-tracking-id").textContent = appt.tracking_id;
+
+        // Status badge
+        const statusConf = STATUS_CONFIG[appt.status] || STATUS_CONFIG.pending;
+        const badge = document.getElementById("status-badge");
+        badge.textContent = statusConf.label;
+        badge.className = `badge ${statusConf.badge}`;
+
+        // Student + teacher details
+        document.getElementById("res-name").textContent = appt.customer_name;
+        document.getElementById("res-teacher").textContent = appt.business?.name || "—";
+        document.getElementById("res-purpose").textContent = appt.service?.name || "—";
+        document.getElementById("res-duration").textContent =
+            appt.service ? `${appt.service.duration_minutes} min` : "—";
+
+        // Date & time
+        if (appt.slot) {
+            const dateObj = new Date(appt.slot.date + "T00:00:00");
+            document.getElementById("res-date").textContent =
+                dateObj.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+            document.getElementById("res-time").textContent =
+                `${appt.slot.start_time} – ${appt.slot.end_time}`;
+        }
+
+        // Notes
+        if (appt.customer_notes) {
+            document.getElementById("res-notes").textContent = appt.customer_notes;
+            document.getElementById("notes-row").classList.remove("d-none");
+        } else {
+            document.getElementById("notes-row").classList.add("d-none");
+        }
+
+        // Booked at
+        const bookedDate = new Date(appt.booked_at);
+        document.getElementById("res-booked-at").textContent =
+            bookedDate.toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
+
+        // Status timeline
+        buildTimeline(appt.status, statusConf.step);
+
+        // "Book Another" link goes to the same teacher
+        if (appt.teacher) {
+            document.getElementById("book-another-link").href = `/book/${appt.teacher.id}`;
+        }
+
+        document.getElementById("result-card").classList.remove("d-none");
+    }
+
+    function buildTimeline(status, activeStep) {
+        const container = document.getElementById("status-timeline");
+
+        if (status === "cancelled") {
+            container.innerHTML = `
+                <span class="badge bg-danger px-3 py-2">
+                    <i class="bi bi-x-circle me-1"></i>Appointment Cancelled
+                </span>`;
+            return;
+        }
+
+        container.innerHTML = TIMELINE_STEPS.map((step, i) => {
+            const done = i < activeStep;
+            const active = i === activeStep;
+            const iconClass = done ? "bi-check-circle-fill text-success" :
+                              active ? "bi-circle-fill text-primary" : "bi-circle text-muted";
+
+            return `
+                <div class="d-flex align-items-center ${i < TIMELINE_STEPS.length - 1 ? "flex-fill" : ""}">
+                    <div class="text-center" style="min-width:70px">
+                        <i class="bi ${iconClass}" style="font-size:18px"></i>
+                        <div class="small mt-1 ${active ? 'fw-semibold text-primary' : done ? 'text-success' : 'text-muted'}"
+                             style="font-size:11px">${step}</div>
+                    </div>
+                    ${i < TIMELINE_STEPS.length - 1 ? '<div class="flex-fill border-top border-2 ' + (done || active ? 'border-primary' : 'border-secondary') + '" style="opacity:0.3;margin-bottom:20px"></div>' : ''}
+                </div>
+            `;
+        }).join("");
+    }
+
+    function showAlert(html, type) {
+        const box = document.getElementById("track-alert");
+        box.innerHTML = html;
+        box.className = `alert alert-${type} py-2`;
+        box.classList.remove("d-none");
+    }
+
+    function hideAlert() {
+        document.getElementById("track-alert").classList.add("d-none");
+    }
+
+    function clearResult() {
+        document.getElementById("result-card").classList.add("d-none");
+        document.getElementById("tracking-input").value = "";
+        hideAlert();
+        document.getElementById("tracking-input").focus();
+    }
+</script>
+{% endblock %}

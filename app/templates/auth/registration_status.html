@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Registration Status — CampusSlot{% endblock %}
+{% block content %}
+<div class="container py-5"><div class="row justify-content-center"><div class="col-lg-7">
+<div class="card border-0 shadow-sm"><div class="card-body p-5 text-center">
+<div class="display-5 mb-3">{% if not record %}🔎{% elif record.registration_status=='pending' %}⏳{% elif record.registration_status=='approved' %}✅{% else %}❌{% endif %}</div>
+<h2 class="fw-bold">Registration Status</h2><p class="text-muted">Registration ID: <code>{{ registration_id|upper }}</code></p>
+{% if not record %}<div class="alert alert-warning">No registration was found with this ID.</div>
+{% elif record.registration_status=='pending' %}<div class="alert alert-warning"><strong>Registration Submitted</strong><br>Your account is waiting for administrator approval. You will be able to log in after approval.</div>
+{% elif record.registration_status=='approved' %}<div class="alert alert-success"><strong>Registration Approved</strong><br>Your CampusSlot account is ready.</div><a class="btn btn-primary" href="{{ url_for('student.login') if role=='student' else url_for('auth.login') }}">Continue to Login</a>
+{% else %}<div class="alert alert-danger text-start"><strong>Registration Rejected</strong><br>{{ record.rejection_reason or 'The administrator did not provide a reason.' }}</div><a class="btn btn-outline-primary" href="{{ url_for('student.register') if role=='student' else url_for('auth.register') }}">Submit Again</a>{% endif %}
+<div class="mt-4"><a href="/" class="text-decoration-none">Return to CampusSlot Home</a></div>
+</div></div></div></div></div>
+{% endblock %}

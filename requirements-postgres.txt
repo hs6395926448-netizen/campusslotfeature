@@ -1,0 +1,4 @@
+# PostgreSQL database driver
+
+-r requirements.txt
+psycopg[binary]>=3.2

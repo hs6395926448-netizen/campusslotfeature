@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Teacher Dashboard — CampusSlot{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 px-lg-4">
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+<div><h2 class="fw-bold mb-1">Teacher Dashboard</h2><div class="text-muted">Welcome, {{ business.name }}</div></div>
+<div class="d-flex gap-2"><a href="/profile" class="btn btn-outline-primary">My Profile</a><a href="/book/{{ business.slug }}" target="_blank" class="btn btn-outline-primary">Booking Page</a><a href="/logout" class="btn btn-outline-danger">Logout</a></div>
+</div>
+<div class="row g-3 mb-4">
+<div class="col-6 col-lg-3"><div class="stat-card"><div class="h3 mb-0">{{ appointments|length }}</div><small>Total Appointments</small></div></div>
+<div class="col-6 col-lg-3"><div class="stat-card"><div class="h3 mb-0">{{ appointments|selectattr('status','equalto','pending')|list|length }}</div><small>Pending</small></div></div>
+<div class="col-6 col-lg-3"><div class="stat-card"><div class="h3 mb-0">{{ appointments|selectattr('status','equalto','confirmed')|list|length }}</div><small>Confirmed</small></div></div>
+<div class="col-6 col-lg-3"><div class="stat-card"><div class="h3 mb-0">{{ services|length }}</div><small>Appointment Purposes</small></div></div>
+</div>
+<div class="row g-4">
+<div class="col-lg-8"><div class="card shadow-sm border-0"><div class="card-header bg-white"><strong>Appointments</strong></div><div class="card-body p-0">
+{% if appointments %}<div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Student</th><th>Purpose</th><th>Date / Time</th><th>Status</th><th></th></tr></thead><tbody>
+{% for a in appointments %}<tr data-status="{{a.status}}" data-id="{{a.id}}" data-version="{{a.version}}"><td><strong>{{a.customer_name}}</strong><div class="small text-muted">{{a.student.roll_number if a.student else a.customer_phone}}</div></td><td>{{a.slot.service.name}}</td><td>{{a.slot.date.strftime('%d %b %Y')}}<div class="small text-muted">{{a.slot.start_time}}–{{a.slot.end_time}}</div></td><td><span class="badge status-badge {{a.status}}">{{a.status|capitalize}}</span></td><td><div class="dropdown"><button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">Update</button><ul class="dropdown-menu"><li><button class="dropdown-item" onclick="updateStatus({{a.id}},'confirmed')">Confirm</button></li><li><button class="dropdown-item" onclick="updateStatus({{a.id}},'completed')">Complete</button></li><li><button class="dropdown-item text-danger" onclick="updateStatus({{a.id}},'cancelled')">Cancel</button></li></ul></div></td></tr>{% endfor %}
+</tbody></table></div>{% else %}<div class="p-5 text-center text-muted"><i class="bi bi-calendar-x fs-1"></i><p class="mt-2">No appointments yet.</p></div>{% endif %}
+</div></div></div>
+<div class="col-lg-4">
+<div class="card shadow-sm border-0 mb-4"><div class="card-header bg-white"><strong>Add Appointment Purpose</strong></div><div class="card-body">
+<div id="service-alert"></div><input id="svc-name" class="form-control mb-2" placeholder="e.g. Project Guidance"><textarea id="svc-desc" class="form-control mb-2" placeholder="Description"></textarea><div class="mb-2"><input id="svc-duration" type="number" min="5" max="480" class="form-control" placeholder="Duration in minutes"></div><button class="btn btn-success w-100" onclick="addService()">Add Purpose</button></div></div>
+<div class="card shadow-sm border-0 mb-4"><div class="card-header bg-white"><strong>Add Time Slot</strong></div><div class="card-body"><div id="slot-alert"></div><select id="slot-service" class="form-select mb-2"><option value="">Select purpose</option>{% for s in services %}<option value="{{s.id}}" data-duration="{{s.duration_minutes}}">{{s.name}} — {{s.duration_minutes}} min</option>{% endfor %}</select><div id="slot-duration" class="alert alert-info py-2 small mb-2 d-none"></div><input id="slot-date" type="date" min="{{today}}" class="form-control mb-2"><div class="row g-2 mb-2"><div class="col-6"><label class="form-label small mb-1">Start time</label><input id="slot-start" type="time" class="form-control"></div><div class="col-6"><label class="form-label small mb-1">End time (automatic)</label><input id="slot-end" type="time" class="form-control" readonly></div></div><div id="slot-preview" class="small text-muted mb-2">Select a purpose and start time. The end time will be calculated automatically.</div><button class="btn btn-primary w-100" onclick="addSlot()">Add Slot</button></div></div>
+<div class="card shadow-sm border-0"><div class="card-header bg-white"><strong>Active Purposes</strong></div><ul id="service-list" class="list-group list-group-flush">{% for s in services %}<li class="list-group-item d-flex justify-content-between"><span>{{s.name}} <small class="text-muted">({{s.duration_minutes}} min)</small></span><button class="btn btn-sm btn-outline-danger" onclick="deleteService({{s.id}},this)">Remove</button></li>{% else %}<li class="list-group-item text-muted">None yet.</li>{% endfor %}</ul></div>
+</div></div></div>
+{% endblock %}
+{% block scripts %}<script>
+const today=new Date().toISOString().slice(0,10);document.getElementById("slot-date").min=today;
+const slotService=document.getElementById("slot-service");
+const slotStart=document.getElementById("slot-start");
+const slotEnd=document.getElementById("slot-end");
+const slotDuration=document.getElementById("slot-duration");
+const slotPreview=document.getElementById("slot-preview");
+function msg(id,text,type="danger"){document.getElementById(id).innerHTML=`<div class="alert alert-${type} py-2 small">${text}</div>`}
+function updateSlotEnd(){
+  const option=slotService.options[slotService.selectedIndex];
+  const duration=Number(option?.dataset?.duration||0);
+  if(!duration){slotEnd.value="";slotDuration.classList.add("d-none");slotPreview.textContent="Select a purpose and start time. The end time will be calculated automatically.";return;}
+  slotDuration.classList.remove("d-none");
+  slotDuration.textContent=`This appointment purpose is ${duration} minutes long. The end time is fixed automatically.`;
+  if(!slotStart.value){slotEnd.value="";slotPreview.textContent=`Choose a start time. The appointment will last exactly ${duration} minutes.`;return;}
+  const [h,m]=slotStart.value.split(":").map(Number);
+  const total=h*60+m+duration;
+  if(total>1439){slotEnd.value="";slotPreview.textContent="This duration would cross midnight. Choose an earlier start time.";return;}
+  const eh=String(Math.floor(total/60)).padStart(2,"0"), em=String(total%60).padStart(2,"0");
+  slotEnd.value=`${eh}:${em}`;
+  slotPreview.textContent=`Slot: ${slotStart.value}–${slotEnd.value} (${duration} minutes)`;
+}
+slotService.addEventListener("change",updateSlotEnd);
+slotStart.addEventListener("input",updateSlotEnd);
+async function addService(){let name=document.getElementById("svc-name").value.trim(),description=document.getElementById("svc-desc").value.trim(),duration=Number(document.getElementById("svc-duration").value);if(!name||!duration)return msg("service-alert","Name and duration are required.","warning");let r=await fetch("/api/add-service",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,description,duration_minutes:duration})}),d=await r.json();if(!d.success)return msg("service-alert",d.error);let s=d.service;let o=new Option(`${s.name} — ${s.duration_minutes} min`,s.id);o.dataset.duration=s.duration_minutes;document.getElementById("slot-service").add(o);document.getElementById("service-list").insertAdjacentHTML("beforeend",`<li class="list-group-item d-flex justify-content-between"><span>${s.name} <small class="text-muted">(${s.duration_minutes} min)</small></span><button class="btn btn-sm btn-outline-danger" onclick="deleteService(${s.id},this)">Remove</button></li>`);["svc-name","svc-desc","svc-duration"].forEach(x=>document.getElementById(x).value="");msg("service-alert","Purpose added.","success")}
+async function addSlot(){let service_id=Number(slotService.value),date=document.getElementById("slot-date").value,start_time=slotStart.value,end_time=slotEnd.value;if(!service_id||!date||!start_time)return msg("slot-alert","Select a purpose, date, and start time.","warning");updateSlotEnd();end_time=slotEnd.value;if(!end_time)return msg("slot-alert","The selected duration cannot finish after midnight. Choose an earlier start time.","warning");let r=await fetch("/api/add-slot",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({service_id,date,start_time,end_time})}),d=await r.json();msg("slot-alert",d.success?`Slot added successfully: ${d.slot.start_time}–${d.slot.end_time}.`:d.error,d.success?"success":"danger");if(d.success){slotStart.value="";slotEnd.value="";updateSlotEnd();}}
+async function deleteService(id,btn){if(!confirm("Deactivate this purpose?"))return;let r=await fetch(`/api/services/${id}`,{method:"DELETE"}),d=await r.json();if(d.success){btn.closest("li").remove();document.querySelector(`#slot-service option[value="${id}"]`)?.remove()}else alert(d.error)}
+async function updateStatus(id,status){
+  const row=document.querySelector(`tr[data-id="${id}"]`);
+  const version=Number(row?.dataset?.version||0);
+  const r=await fetch(`/api/appointments/${id}/status`,{
+    method:"PATCH",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({status,version})
+  });
+  const d=await r.json();
+  if(!d.success){alert(d.error||"Unable to update appointment.");return;}
+  const badge=row.querySelector(".status-badge");
+  badge.className=`badge status-badge ${status}`;
+  badge.textContent=status.charAt(0).toUpperCase()+status.slice(1);
+  row.dataset.version=d.appointment.version;
+  row.dataset.status=status;
+}
+</script>{% endblock %}

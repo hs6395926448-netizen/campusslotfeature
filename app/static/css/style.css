@@ -1,0 +1,165 @@
+/* =============================================
+   Slotify — Custom Styles
+   Bootstrap 5 is the base; this file adds only
+   what Bootstrap doesn't cover out of the box.
+   ============================================= */
+
+/* --- Typography & Body --- */
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+/* --- Navbar --- */
+.navbar-brand {
+    font-size: 1.3rem;
+    letter-spacing: -0.01em;
+}
+
+/* --- Cards --- */
+.card {
+    border-radius: 12px;
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+}
+
+/* --- Booking Page: Slot Buttons --- */
+.slot-btn {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.4rem 0.2rem;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+}
+
+.slot-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(13, 110, 253, 0.25);
+}
+
+/* --- Tracking Page: Detail Blocks --- */
+.detail-block {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 0.65rem 0.75rem;
+}
+
+/* --- Dashboard Stats Cards --- */
+.card .fs-2 {
+    line-height: 1;
+}
+
+/* --- Table rows hover --- */
+.table-hover tbody tr:hover {
+    background-color: rgba(13, 110, 253, 0.04);
+}
+
+/* --- Status badge sizing --- */
+.badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.35em 0.65em;
+    border-radius: 6px;
+}
+
+/* --- Form controls — consistent sizing --- */
+.form-control:focus,
+.form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.12);
+}
+
+/* --- Spinner alignment inside buttons --- */
+.btn .spinner-border {
+    vertical-align: text-bottom;
+}
+
+/* --- Booking success icon pulse --- */
+@keyframes successPop {
+    0%   { transform: scale(0.7); opacity: 0; }
+    70%  { transform: scale(1.1); }
+    100% { transform: scale(1);   opacity: 1; }
+}
+
+#success-state .bi-check-circle-fill {
+    animation: successPop 0.4s ease forwards;
+}
+
+/* --- Tracking timeline --- */
+#status-timeline {
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+/* --- Mobile responsiveness tweaks --- */
+@media (max-width: 576px) {
+    .slot-btn {
+        font-size: 0.78rem;
+        padding: 0.35rem 0.1rem;
+    }
+
+    .table td, .table th {
+        font-size: 0.82rem;
+    }
+
+    .card-body.p-4 {
+        padding: 1.25rem !important;
+    }
+}
+
+/* --- Dashboard sidebar form labels --- */
+.form-label.small {
+    font-weight: 500;
+    color: #6c757d;
+}
+
+/* --- Code / tracking ID display --- */
+code.text-primary {
+    font-size: 0.8rem;
+    background: rgba(13, 110, 253, 0.08);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+}
+
+/* --- Smooth page transitions --- */
+main {
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.avatar{width:48px;height:48px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#e7f0ff;color:#0d6efd;font-size:22px}
+.avatar-lg{width:64px;height:64px;font-size:28px}
+.stat-card{background:#fff;border:1px solid #e9ecef;border-radius:12px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.status-badge.pending{background:#ffc107;color:#212529}.status-badge.confirmed{background:#0d6efd}.status-badge.completed{background:#198754}.status-badge.cancelled{background:#dc3545}
+.slot-btn.active{color:#fff;background:#0d6efd}
+
+.teacher-photo {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,.12);
+    background: #eef2f7;
+}
+.teacher-photo-sm { width: 48px; height: 48px; }
+.teacher-photo-lg { width: 112px; height: 112px; border-width: 4px; }
+.avatar-sm { width: 48px; height: 48px; font-size: 1rem; }
+
+/* --- User profile pages --- */
+.profile-cover { height: 110px; background: linear-gradient(135deg, #0d6efd, #6f42c1); }
+.profile-head { margin-top: -62px; }
+.profile-photo { width: 124px; height: 124px; border: 5px solid #fff; box-shadow: 0 4px 18px rgba(0,0,0,.15); }
+.profile-detail, .profile-info-list > div { display:flex; gap:14px; align-items:flex-start; padding:12px 0; border-bottom:1px solid #edf0f4; }
+.profile-detail i, .profile-info-list i { color:#0d6efd; font-size:1.15rem; min-width:22px; text-align:center; margin-top:2px; }
+.profile-detail:last-child, .profile-info-list > div:last-child { border-bottom:0; }
+.student-profile-avatar { width:120px; height:120px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#e7f0ff; color:#0d6efd; font-size:3.5rem; font-weight:700; border:5px solid #fff; box-shadow:0 4px 18px rgba(13,110,253,.15); }
+.hero-section{background:linear-gradient(135deg,#f4f8ff 0%,#ffffff 60%,#eef4ff 100%)}
+.hero-card{border-radius:20px}.feature-mini{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid #edf0f4}.feature-mini:last-child{border-bottom:0}.step-card{height:100%;padding:24px;border-radius:16px;background:#f8f9fa}.step-card span{display:inline-flex;width:36px;height:36px;align-items:center;justify-content:center;border-radius:10px;background:#e7f0ff;color:#0d6efd;font-weight:700;margin-bottom:16px}.step-card p{color:#6c757d;margin-bottom:0}.booking-steps{display:flex;gap:6px;overflow:auto}.booking-steps span{white-space:nowrap;padding:7px 12px;border-radius:20px;background:#f1f3f5;color:#6c757d;font-size:.8rem}.booking-steps span.active{background:#0d6efd;color:#fff}.step-heading{display:flex;gap:10px;align-items:center}.step-number{width:32px;height:32px;border-radius:50%;background:#e7f0ff;color:#0d6efd;display:inline-flex;align-items:center;justify-content:center;font-weight:700}.availability-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}.availability-dot.available{background:#198754}.availability-dot.limited{background:#ffc107}.availability-dot.unavailable{background:#adb5bd}.object-fit-cover{object-fit:cover}

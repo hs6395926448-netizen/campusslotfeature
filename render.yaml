@@ -1,0 +1,43 @@
+# Render Blueprint for CampusSlot.
+# Simple setup: web + database. Email runs in a background thread pool so
+# booking/registration buttons do not wait on the email provider.
+# For durable queued delivery at higher volume, configure Redis and a separate
+# Celery worker manually; use the same CELERY_BROKER_URL on both services.
+services:
+  - type: web
+    name: campusslot
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements-postgres.txt
+    startCommand: gunicorn run:app --workers 2 --threads 4 --timeout 120
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: campusslot-db
+          property: connectionString
+      - key: BASE_URL
+        sync: false
+      - key: APPS_SCRIPT_URL
+        sync: false
+      - key: APPS_SCRIPT_SECRET
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM_EMAIL
+        value: CampusSlot <onboarding@resend.dev>
+      - key: CELERY_BROKER_URL
+        value: ""
+      - key: APPOINTMENT_TIMEZONE
+        value: Asia/Kolkata
+
+databases:
+  - name: campusslot-db
+    databaseName: campusslot
+    user: campusslot_user
+    plan: free
